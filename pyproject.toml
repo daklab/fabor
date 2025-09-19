@@ -1,0 +1,26 @@
+[project]
+name = "promfam"
+version = "0.1.0"
+description = "Probabilistic Matrix Factor Analysis (with Missingness)"
+authors = [
+    {name = "Shashaank N", email = "panda-truth-scuba@duck.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch (>=2.6.0,<3.0.0)",
+    "pyro-ppl (>=1.9.1,<2.0.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "pytorch_cuda_124"
+url = "https://download.pytorch.org/whl/cu124"
+priority = "explicit"
+
+
+[tool.poetry.dependencies]
+torch = {source = "pytorch_cuda_124"}
