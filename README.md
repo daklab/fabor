@@ -1,3 +1,3 @@
-# PromFAM: Probabilistic Matrix Factor Analysis (with Missingness)
+# FABOr: Factor Analysis of Binary and Ordinal data
 
 More information coming soon!

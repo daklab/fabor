@@ -1,7 +1,7 @@
 [project]
-name = "promfam"
+name = "fabor"
 version = "0.1.0"
-description = "Probabilistic Matrix Factor Analysis (with Missingness)"
+description = "Factor Analysis of Binary and Ordinal data"
 authors = [
     {name = "Shashaank N", email = "panda-truth-scuba@duck.com"}
 ]
