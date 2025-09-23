@@ -92,7 +92,10 @@ class Base:
         self, 
         Y: torch.Tensor, 
         K: int, 
-        mnar_by_data: bool = False
+        mnar_by_data: bool = False,
+        max_iterations: int = 1000,
+        posterior_samples: int = 50,
+        detailed: bool = False
     ):
         # Add missingness to data if enabled
         Y = Y.float()
@@ -113,10 +116,16 @@ class Base:
 
         # Run SVI and return average of samples 
         # from predicted posterior
-        loss = svi(self.model, guide, params, iterations = 1000, print_every = 100)
-        samples = svi_posterior(self.model, guide, params, num_samples = 50)
+        loss = svi(self.model, guide, params, max_iterations = max_iterations)
+        stats = svi_posterior(self.model, guide, params, num_samples = posterior_samples)
 
-        return samples, loss
+        # Simplify posterior stats if needed
+        if not detailed:
+            stats = {
+                key: value['mean'] for key, value in stats.items()
+            }
+
+        return stats, pheno_cat, loss
 
 # Base implementation used for MNAR models
 class BaseMNAR(Base):
