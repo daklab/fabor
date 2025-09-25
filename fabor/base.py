@@ -8,7 +8,7 @@ from .fit import svi, svi_posterior
 # Determine datatypes for each phenotype
 # in matrix and group into
 # categories
-def _get_pheno_categories(Y: torch.Tensor) -> dict[str, torch.Tensor]:
+def get_pheno_categories(Y: torch.Tensor) -> dict[str, torch.Tensor]:
     # Get unique values
     P = Y.shape[1]
     num_unique_values = []
@@ -104,7 +104,7 @@ class Base:
             Y = torch.cat(torch.cat([Y, mask], axis = 1))
 
         # Get phenotype categories
-        pheno_cat = _get_pheno_categories(Y)
+        pheno_cat = get_pheno_categories(Y)
 
         # Initialize setup for SVI
         guide = AutoDiagonalNormal(self.model)
@@ -153,7 +153,7 @@ class BaseMNAR(Base):
         K: int, 
     ):
         # Get phenotype categories
-        pheno_cat = _get_pheno_categories(Y)
+        pheno_cat = get_pheno_categories(Y)
 
         # Initialize setup for SVI
         guide = AutoDiagonalNormal(self.model)

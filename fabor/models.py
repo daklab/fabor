@@ -24,7 +24,7 @@ class Normal(Base):
         V = pyro.sample("V", V_dist)
 
         # f(U, V) = σ(UV^T)
-        W = torch.sigmoid(U @ V.T)
+        W = pyro.deterministic("W", torch.sigmoid(U @ V.T))
 
         self.likelihood(W, Y, pheno_cat)
 
@@ -39,8 +39,8 @@ class DirichletBeta(Base):
     ):
         N, P = Y.shape
 
-        # U ~ Dirichlet(1 / K)
-        U_dist = dist.Dirichlet(torch.ones(K, device = Y.device) / K).expand([N]).to_event(1)
+        # U ~ Dirichlet(1)
+        U_dist = dist.Dirichlet(torch.ones(K, device = Y.device)).expand([N]).to_event(1)
         U = pyro.sample("U", U_dist)
 
         # V ~ Beta(2, 2)
@@ -48,7 +48,7 @@ class DirichletBeta(Base):
         V = pyro.sample("V", V_dist)
 
         # f(U, V) = UV^T
-        W = U @ V.T
+        W = pyro.deterministic("W", U @ V.T)
 
         self.likelihood(W, Y, pheno_cat)
 
@@ -63,8 +63,8 @@ class DirichletNormal(Base):
     ):
         N, P = Y.shape
 
-        # U ~ Dirichlet(1 / K)
-        U_dist = dist.Dirichlet(torch.ones(K, device = Y.device) / K).expand([N]).to_event(1)
+        # U ~ Dirichlet(1)
+        U_dist = dist.Dirichlet(torch.ones(K, device = Y.device)).expand([N]).to_event(1)
         U = pyro.sample("U", U_dist)
 
         # V ~ N(0, 1)
@@ -72,7 +72,7 @@ class DirichletNormal(Base):
         V = pyro.sample("V", V_dist)
 
         # f(U, V) = U σ(V^T)
-        W = U @ torch.sigmoid(V.T)
+        W = pyro.deterministic("W", U @ torch.sigmoid(V.T))
 
         self.likelihood(W, Y, pheno_cat)
 
@@ -96,7 +96,7 @@ class Lognormal(Base):
         V = pyro.sample("V", V_dist)
 
         # f(U, V) = 1 - exp(-UV^T)
-        W = 1 - torch.exp(-(U @ V.T))
+        W = pyro.deterministic("W", 1 - torch.exp(-(U @ V.T)))
 
         self.likelihood(W, Y, pheno_cat)
 
@@ -141,7 +141,7 @@ class NormalMNAR(BaseMNAR):
         V = pyro.deterministic("V", mu_V + V_unit * torch.exp(-sigma_V))
 
         # f(U, V) = σ(UV^T)
-        W = torch.sigmoid(U @ V.T)
-        sigma_W = torch.sigmoid(sigma_U @ sigma_V.T)
+        W = pyro.deterministic("W", torch.sigmoid(U @ V.T))
+        sigma_W = pyro.deterministic("sigma_W", torch.sigmoid(sigma_U @ sigma_V.T))
 
         self.likelihood(W, sigma_W, Y, M, pheno_cat)
