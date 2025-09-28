@@ -39,10 +39,10 @@ def svi(model, guide, params, max_iterations = 1000, patience = 100, print_every
         except Exception as e:
             print(f"Ran into exception {e}")
             attempts += 1
-        
+
     if attempts == 5:
         raise ValueError("Unable to fit model")
-        
+
     return np.array(losses)
 
 # Sample from posterior distribution
@@ -53,12 +53,12 @@ def svi_posterior(model, guide, data, num_samples = 50):
     samples = predictive(**data)
 
     # Get mean and standard deviation of latent samples
-    posterior_stats = { 
+    posterior_stats = {
         k : {
-            "mean": torch.mean(v, 0),
-            "std": torch.std(v, 0),
-            "5%": v.kthvalue(int(len(v) * 0.05), dim = 0)[0],
-            "95%": v.kthvalue(int(len(v) * 0.95), dim = 0)[0],
+            "mean": torch.mean(v, 0).squeeze(),
+            "std": torch.std(v, 0).squeeze(),
+            "5%": v.kthvalue(int(len(v) * 0.05), dim = 0)[0].squeeze(),
+            "95%": v.kthvalue(int(len(v) * 0.95), dim = 0)[0].squeeze(),
         } for k, v in samples.items() if 'obs' not in k
     }
 
