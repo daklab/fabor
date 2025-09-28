@@ -18,7 +18,7 @@ def get_pheno_categories(Y: torch.Tensor) -> dict[str, torch.Tensor]:
         num_unique_values.append(unique.shape[0])
     num_unique_values = torch.tensor(num_unique_values)
 
-    # Group phenotypes which have same 
+    # Group phenotypes which have same
     # number of unique values
     category_counts = torch.unique(num_unique_values)
     pheno_cat = {}
@@ -28,21 +28,21 @@ def get_pheno_categories(Y: torch.Tensor) -> dict[str, torch.Tensor]:
             pheno_cat['binary'] = pheno_counts
         else:
             pheno_cat[f'ordinal_{count}'] = pheno_counts
-    
+
     return pheno_cat
 
 # Base implementation
 # used for all models
 class Base:
     # Model structure
-    def model():
+    def model(self):
         raise NotImplementedError
 
     # Likelihood function used
     # in all models
     def likelihood(
         self,
-        W: torch.Tensor, 
+        W: torch.Tensor,
         Y: torch.Tensor,
         pheno_cat: dict[str, torch.Tensor]
     ):
@@ -81,17 +81,17 @@ class Base:
 
                 # Y_{np} ~ Cat(θ_{np})
                 obs_dist = dist.Categorical(theta).mask(mask[:, pheno_mask])
-            
+
         # Likelihood of observed variable
         with pyro.plate(f"Q_{cat}", Q):
             with pyro.plate(f"N_{cat}", N):
                 obs = pyro.sample(f"obs_{cat}", obs_dist, obs = torch.nan_to_num(Y[:, pheno_mask]))
-    
+
     # Fit model to given data
     def fit(
-        self, 
-        Y: torch.Tensor, 
-        K: int, 
+        self,
+        Y: torch.Tensor,
+        K: int,
         mnar_by_data: bool = False,
         max_iterations: int = 1000,
         posterior_samples: int = 50,
@@ -114,7 +114,7 @@ class Base:
             "pheno_cat": pheno_cat
         }
 
-        # Run SVI and return average of samples 
+        # Run SVI and return average of samples
         # from predicted posterior
         loss = svi(self.model, guide, params, max_iterations = max_iterations)
         stats = svi_posterior(self.model, guide, params, num_samples = posterior_samples)
@@ -134,7 +134,7 @@ class BaseMNAR(Base):
     def likelihood(
         self,
         W: torch.Tensor,
-        sigma_W: torch.Tensor, 
+        sigma_W: torch.Tensor,
         Y: torch.Tensor,
         M: torch.Tensor,
         pheno_cat: dict[str, torch.Tensor]
@@ -147,10 +147,13 @@ class BaseMNAR(Base):
 
     # Fit model to given data
     def fit(
-        self, 
+        self,
         Y: torch.Tensor,
-        M: torch.Tensor, 
-        K: int, 
+        M: torch.Tensor,
+        K: int,
+        max_iterations: int = 1000,
+        posterior_samples: int = 50,
+        detailed: bool = False
     ):
         # Get phenotype categories
         pheno_cat = get_pheno_categories(Y)
@@ -164,9 +167,15 @@ class BaseMNAR(Base):
             "pheno_cat": pheno_cat
         }
 
-        # Run SVI and return average of samples 
+        # Run SVI and return average of samples
         # from predicted posterior
-        loss = svi(self.model, guide, params, iterations = 1000, print_every = 100)
-        samples = svi_posterior(self.model, guide, params, num_samples = 50)
+        loss = svi(self.model, guide, params, max_iterations = max_iterations, print_every = 100)
+        stats = svi_posterior(self.model, guide, params, num_samples = posterior_samples)
 
-        return samples, loss
+        # Simplify posterior stats if needed
+        if not detailed:
+            stats = {
+                key: value['mean'] for key, value in stats.items()
+            }
+
+        return stats, pheno_cat, loss
