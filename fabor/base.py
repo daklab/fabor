@@ -170,7 +170,6 @@ class BaseMNAR(Base):
     def fit(
         self,
         Y: torch.Tensor,
-        M: torch.Tensor,
         K: int,
         max_iterations: int = 1000,
         posterior_samples: int = 50,
@@ -178,6 +177,9 @@ class BaseMNAR(Base):
     ):
         # Get phenotype categories
         pheno_cat = get_pheno_categories(Y)
+
+        # Get missingness mask
+        M = (~torch.isnan(Y)).float()
 
         # Initialize guide for SVI
         guide = AutoGuideList(self.model)
