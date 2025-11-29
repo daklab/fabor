@@ -1,8 +1,6 @@
 import torch
 import pyro
 import pyro.distributions as dist
-import pyro.distributions.transforms as transforms
-from pyro.infer.reparam import TransformReparam
 from pyro import poutine
 from pyro.infer.autoguide import AutoGuideList, AutoDiagonalNormal, AutoDelta
 
@@ -84,18 +82,14 @@ class Base:
                 # c_p = Σ^{d}_{a=1} σ^-1(s_{pa})
                 D_p = int(cat.split('_')[-1])
                 alpha = torch.ones((D_p,), device = mask.device)
-                with poutine.reparam(config = {f"c_{cat}": TransformReparam()}):
-                    c_obs = pyro.sample(
-                        f"c_{cat}",
-                        dist.TransformedDistribution(
-                            dist.Dirichlet(alpha).expand([Q]).to_event(1),
-                            transforms.SimplexToOrderedTransform(torch.tensor(0., device = mask.device))
-                        ),
-                    )
+                s_dist = dist.Dirichlet(alpha).expand([Q]).to_event(1)
+                s = pyro.sample(f"s_{cat}", s_dist)
+                c = safe_logit(torch.cumsum(s[..., :-1], dim = -1))
+
                 # q_{np} = σ(c_p - σ^-1(W_{np}))
                 # θ_{npd} = q_{npd} - q_{np(d - 1)}
                 # Y_{np} ~ Cat(θ_{np})
-                obs_dist = dist.OrderedLogistic(safe_logit(W[:, pheno_mask]), c_obs).mask(mask[:, pheno_mask])
+                obs_dist = dist.OrderedLogistic(safe_logit(W[:, pheno_mask]), c).mask(mask[:, pheno_mask])
 
             # Likelihood of observed variable
             with pyro.plate(f"Q_{cat}", Q):
@@ -206,5 +200,5 @@ class BaseMNAR(Base):
             stats = {
                 key: value['mean'] for key, value in stats.items()
             }
-
+        
         return stats, pheno_cat, loss
