@@ -16,6 +16,15 @@ def get_pheno_categories(Y: torch.Tensor) -> dict[str, torch.Tensor]:
     for p in range(P):
         Y_p = Y[:, p]
         unique = torch.unique(Y_p[~torch.isnan(Y_p)])
+
+        # Verify that categories are ordered from 0 to D - 1
+        expected = torch.arange(unique.shape[0], device = Y.device).float()
+        if not torch.allclose(unique, expected):
+            raise ValueError(
+                f"Incorrect data format in column {p}. "
+                f"Categories must be written as {expected.cpu()} instead of {unique.cpu()}"
+            )
+        
         num_unique_values.append(unique.shape[0])
     num_unique_values = torch.tensor(num_unique_values)
 
@@ -106,14 +115,17 @@ class Base:
         posterior_samples: int = 50,
         detailed: bool = False
     ):
-        # Add missingness to data if enabled
+        # Get phenotype categories
         Y = Y.float()
+        pheno_cat = get_pheno_categories(Y)
+
+        # Add missingness to data if enabled
         if mnar_by_data:
+            num_pheno = Y.shape[1]
             mask = (~torch.isnan(Y)).float()
             Y = torch.cat([Y, mask], axis = 1)
-
-        # Get phenotype categories
-        pheno_cat = get_pheno_categories(Y)
+            pheno_cat.setdefault('binary', [])
+            pheno_cat['binary'].extend(list(range(num_pheno, num_pheno * 2 + 1)))
 
         # Initialize guide for SVI
         guide = AutoGuideList(self.model)
