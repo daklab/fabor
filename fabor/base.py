@@ -124,8 +124,9 @@ class Base:
             num_pheno = Y.shape[1]
             mask = (~torch.isnan(Y)).float()
             Y = torch.cat([Y, mask], axis = 1)
-            pheno_cat.setdefault('binary', [])
-            pheno_cat['binary'].extend(list(range(num_pheno, num_pheno * 2 + 1)))
+            pheno_cat.setdefault('binary', torch.tensor([], dtype = int))
+            new_indices = torch.arange(num_pheno, num_pheno * 2)
+            pheno_cat['binary'] = torch.cat([pheno_cat['binary'], new_indices])
 
         # Initialize guide for SVI
         guide = AutoGuideList(self.model)
