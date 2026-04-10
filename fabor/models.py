@@ -129,16 +129,16 @@ class NormalMNAR(BaseMNAR):
         sigma_V = pyro.sample("sigma_V", sigma_V_dist)
 
         # U_unit ~ N(0, 1)
-        # U = μ_U + U_unit * exp(-Σ_U)
+        # U = μ_U + U_unit * exp(-Σ_U / 2)
         U_unit_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([N, K]).to_event(2)
         U_unit = pyro.sample("U_unit", U_unit_dist)
-        U = pyro.deterministic("U", mu_U + U_unit * torch.exp(-sigma_U))
+        U = pyro.deterministic("U", mu_U + U_unit * torch.exp(-sigma_U / 2))
 
         # V_unit ~ N(0, 1)
-        # V = μ_V + V_unit * exp(-Σ_V)
+        # V = μ_V + V_unit * exp(-Σ_V / 2)
         V_unit_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([P, K]).to_event(2)
         V_unit = pyro.sample("V_unit", V_unit_dist)
-        V = pyro.deterministic("V", mu_V + V_unit * torch.exp(-sigma_V))
+        V = pyro.deterministic("V", mu_V + V_unit * torch.exp(-sigma_V / 2))
 
         # f(U, V) = σ(UV^T)
         W = pyro.deterministic("W", torch.sigmoid(U @ V.T))
