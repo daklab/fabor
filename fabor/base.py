@@ -24,7 +24,7 @@ def get_pheno_categories(Y: torch.Tensor) -> dict[str, torch.Tensor]:
                 f"Incorrect data format in column {p}. "
                 f"Categories must be written as {expected.cpu()} instead of {unique.cpu()}"
             )
-        
+
         num_unique_values.append(unique.shape[0])
     num_unique_values = torch.tensor(num_unique_values)
 
@@ -93,12 +93,12 @@ class Base:
                 alpha = torch.ones((D_p,), device = mask.device)
                 s_dist = dist.Dirichlet(alpha).expand([Q]).to_event(1)
                 s = pyro.sample(f"s_{cat}", s_dist)
-                c = safe_logit(torch.cumsum(s[..., :-1], dim = -1))
+                c = torch.cumsum(s[..., :-1], dim = -1)
 
                 # q_{np} = σ(c_p - σ^-1(W_{np}))
                 # θ_{npd} = q_{npd} - q_{np(d - 1)}
                 # Y_{np} ~ Cat(θ_{np})
-                obs_dist = dist.OrderedLogistic(safe_logit(W[:, pheno_mask]), c).mask(mask[:, pheno_mask])
+                obs_dist = dist.OrderedLogistic(safe_logit(W[:, pheno_mask]), safe_logit(c)).mask(mask[:, pheno_mask])
 
             # Likelihood of observed variable
             with pyro.plate(f"Q_{cat}", Q):
@@ -213,5 +213,5 @@ class BaseMNAR(Base):
             stats = {
                 key: value['mean'] for key, value in stats.items()
             }
-        
+
         return stats, pheno_cat, loss

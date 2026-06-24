@@ -8,7 +8,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "torch (>=2.6.0,<3.0.0)",
+    "torch (>=2.9.0,<3.0.0)",
     "pyro-ppl (>=1.9.1,<2.0.0)",
 ]
 
@@ -17,10 +17,9 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [[tool.poetry.source]]
-name = "pytorch_cuda_128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch_cuda"
+url = "https://download.pytorch.org/whl/cu130"
 priority = "explicit"
 
-
 [tool.poetry.dependencies]
-torch = {source = "pytorch_cuda_128"}
+torch = {source = "pytorch_cuda"}
