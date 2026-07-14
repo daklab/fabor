@@ -1,10 +1,10 @@
 <div align="center">
-    <img src="logo.svg" alt="FABOr logo" width="300px"/>
+    <img src="assets/logo.svg" alt="FABOr logo" width="300px"/>
 </div>
 
 # FABOr: Factor Analysis of Binary and Ordinal data
 
-FABOr is a Bayesian framework for matrix factorization that models the low-rank matrices as latent variables and is designed to analyze the underlying relationships in binary and/or ordinal data. It accepts missing entries in the input dataset and can model structured missingness (i.e., missing not at random data) if required. For more information on how the framework is designed, please refer to our recent preprint on bioRxiv.
+FABOr is a Bayesian framework for matrix factorization that models the low-rank matrices as latent variables and is designed to analyze the underlying relationships in binary and/or ordinal data. It accepts missing entries in the input dataset and can model structured missingness (i.e., missing not at random data) if required. It was initially designed for analyzing phenotypes from clinical and self-reported medical questionnaires but is applicable to any type of binary/ordinal data. For more information on how the framework is designed, please refer to our recent preprint on bioRxiv.
 
 ## Installation
 
@@ -29,7 +29,7 @@ import fabor
 model = fabor.Normal()
 stats, pheno_cat, loss = model.fit(Y, K)
 ```
-- `Y`: the dataset of interest. Observed values have to be encoded starting from 0, such that binary values are represented using 0 and 1, and ordinal values are represented from 0 to `D - 1` (where `D` is the number of categories for the phenotype). Missing values are encoded as `nan`.
+- `Y`: the dataset of interest. Observed values have to be encoded starting from 0, such that binary values are represented using 0 and 1, and ordinal values are represented from 0 to `D - 1` (where `D` is the number of categories for the phenotype). Missing values have to be encoded as `nan`.
 - `K` is the number of latent factors to fit the model.
 
 The results will then return the following:
@@ -45,7 +45,7 @@ Optional arguments to `fit()` include:
 
 In general, the `Normal` or `NormalMNAR` model is a good starting point for analysis, while the other models can be used to test whether other Bayesian priors make the latent factors more interpretable for different use cases. The framework is designed such that any continuous-valued Bayesian prior can be applied to the low-rank matrices, as long as there exists a differentiable function to transform the product into the unit interval.   
 
-For detailed examples on how to use FABOr on different types of data, please check the [examples](examples/) directory. For more information on the different models/functions in FABOr and how the framework can be customized, please check the [docs](docs/) directory.
+For more information on how to use FABOr and customize the framework to your needs, please check the [examples](examples/) directory.
 
 ## Citing FABOr
 If you find this framework useful in your research, please cite our paper:

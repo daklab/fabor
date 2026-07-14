@@ -122,8 +122,8 @@ class Base:
         # Add missingness to data if enabled
         if mnar_by_data:
             num_pheno = Y.shape[1]
-            mask = (~torch.isnan(Y)).float()
-            Y = torch.cat([Y, mask], axis = 1)
+            M = (~torch.isnan(Y)).float()
+            Y = torch.cat([Y, M], axis = 1)
             pheno_cat.setdefault('binary', torch.tensor([], dtype = int))
             new_indices = torch.arange(num_pheno, num_pheno * 2)
             pheno_cat['binary'] = torch.cat([pheno_cat['binary'], new_indices])

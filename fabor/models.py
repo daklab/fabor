@@ -112,14 +112,6 @@ class NormalMNAR(BaseMNAR):
     ):
         N, P = Y.shape
 
-        # μ_U ~ N(0, 1)
-        mu_U_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([N, K]).to_event(2)
-        mu_U = pyro.sample("mu_U", mu_U_dist)
-
-        # μ_V ~ N(0, 1)
-        mu_V_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([P, K]).to_event(2)
-        mu_V = pyro.sample("mu_V", mu_V_dist)
-
         # Σ_U ~ N(0, 1)
         sigma_U_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([N, K]).to_event(2)
         sigma_U = pyro.sample("sigma_U", sigma_U_dist)
@@ -127,6 +119,17 @@ class NormalMNAR(BaseMNAR):
         # Σ_V ~ N(0, 1)
         sigma_V_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([P, K]).to_event(2)
         sigma_V = pyro.sample("sigma_V", sigma_V_dist)
+
+        # Σ_W = σ(Σ_U Σ_V^T)
+        sigma_W = pyro.deterministic("sigma_W", torch.sigmoid(sigma_U @ sigma_V.T))
+
+        # μ_U ~ N(0, 1)
+        mu_U_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([N, K]).to_event(2)
+        mu_U = pyro.sample("mu_U", mu_U_dist)
+
+        # μ_V ~ N(0, 1)
+        mu_V_dist = dist.Normal(torch.tensor(0., device = Y.device), 1.).expand([P, K]).to_event(2)
+        mu_V = pyro.sample("mu_V", mu_V_dist)
 
         # U_unit ~ N(0, 1)
         # U = μ_U + U_unit * exp(-Σ_U / 2)
@@ -142,6 +145,5 @@ class NormalMNAR(BaseMNAR):
 
         # f(U, V) = σ(UV^T)
         W = pyro.deterministic("W", torch.sigmoid(U @ V.T))
-        sigma_W = pyro.deterministic("sigma_W", torch.sigmoid(sigma_U @ sigma_V.T))
 
         self.likelihood(W, sigma_W, Y, M, pheno_cat)

@@ -3,7 +3,7 @@ name = "fabor"
 version = "0.1.0"
 description = "Factor Analysis of Binary and Ordinal data"
 authors = [
-    {name = "Shashaank N", email = "panda-truth-scuba@duck.com"}
+    {name = "Shashaank N", email = "shashaank.n@columbia.edu"}
 ]
 readme = "README.md"
 requires-python = ">=3.10"
