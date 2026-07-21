@@ -4,7 +4,7 @@
 
 # FABOr: Factor Analysis of Binary and Ordinal data
 
-FABOr is a Bayesian framework for matrix factorization that models the low-rank matrices as latent variables and is designed to analyze the underlying relationships in binary and/or ordinal data. It accepts missing entries in the input dataset and can model structured missingness (i.e., missing not at random data) if required. It was initially designed for analyzing phenotypes from clinical and self-reported medical questionnaires but is applicable to any type of binary/ordinal data. For more information on how the framework is designed, please refer to our recent preprint on [bioRxiv](https://www.biorxiv.org/content/10.64898/2026.07.15.733660v1).
+FABOr is a Bayesian framework for matrix factorization that models the low-rank matrices as latent variables and is designed to analyze the underlying relationships in binary and/or ordinal data. It accepts missing entries in the input dataset and can model structured missingness (i.e., missing not at random data) if required. It was initially designed for analyzing phenotypes from clinical and self-reported medical questionnaires but is applicable to any type of binary/ordinal data. For more information on how the framework is designed, please refer to our recent preprint on [bioRxiv](https://doi.org/10.64898/2026.07.15.733660).
 
 ## Installation
 
