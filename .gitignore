@@ -1,4 +1,6 @@
+.zed
 *.egg-info
 __pycache__/
+__marimo__/
 poetry.lock
 .venv/

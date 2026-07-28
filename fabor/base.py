@@ -153,6 +153,12 @@ class Base:
                 key: value['mean'] for key, value in stats.items()
             }
 
+        # Return fitted values for non-Bayesian parameters
+        trace = poutine.trace(self.model).get_trace(**params)
+        for name, node in trace.nodes.items():
+            if node['type'] == 'param':
+                stats[name] = node['value']
+
         return stats, pheno_cat, loss
 
 # Base implementation used for MNAR models
@@ -213,5 +219,11 @@ class BaseMNAR(Base):
             stats = {
                 key: value['mean'] for key, value in stats.items()
             }
+
+        # Return fitted values for non-Bayesian parameters
+        trace = poutine.trace(self.model).get_trace(**params)
+        for name, node in trace.nodes.items():
+            if node['type'] == 'param':
+                stats[name] = node['value']
 
         return stats, pheno_cat, loss
